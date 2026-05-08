@@ -15,7 +15,26 @@ function App() {
   const [currentAgent, setCurrentAgent] = useState(null);
   const [projectFiles, setProjectFiles] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const textareaRef = useRef(null);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setSelectedFiles(prev => [...prev, ...Array.from(e.dataTransfer.files)]);
+    }
+  };
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -187,7 +206,13 @@ function App() {
         <p style={{ color: '#94a3b8' }}>Professional Software Architecture & Generation</p>
       </header>
 
-      <div className="glass card" style={{ padding: '20px', marginBottom: '30px' }}>
+      <div 
+        className={`glass card ${isDragging ? 'dragging' : ''}`} 
+        style={{ padding: '20px', marginBottom: '30px' }}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <textarea
           ref={textareaRef} value={prompt} onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
